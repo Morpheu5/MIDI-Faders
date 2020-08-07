@@ -52,15 +52,20 @@ unsigned int faderPins[] = { A0, A1, A2, A3 };
 // This updates the display every once in a while. Updating the display is slow
 // so we only update the lines that need updating, and we only run this function
 // a handful of times per second.
+bool shouldUpdateDisplay = true;
+
 void updateDisplay() {
    // unsigned long s = millis(); // DEBUG
+   if (!shouldUpdateDisplay) return;
+
    lcd.setCursor(0, 2);
    snprintf(charBuf, 20, colFormat, CCNumbers[0], CCNumbers[1], CCNumbers[2], CCNumbers[3]);
    lcd.print(charBuf);
    lcd.setCursor(0, 3);
    snprintf(charBuf, 20, colFormat, CCValues[0], CCValues[1], CCValues[2], CCOldValues[3]);
    lcd.print(charBuf);
-   lcd.setCursor(0, 1);
+
+   shouldUpdateDisplay = false;
    // unsigned long e = millis(); // DEBUG
    // if (e-s > 0) {
    //    Serial.print("LCD: ");
@@ -85,6 +90,7 @@ void sendMIDIData() {
       if (CCOldValues[i] != CCValues[i]) {
          CCOldValues[i] = CCValues[i];
          MIDI.sendControlChange(CCNumbers[i], CCOldValues[i], 1);
+         shouldUpdateDisplay = true;
       }
    }
    // unsigned long e = millis(); // DEBUG
@@ -126,9 +132,8 @@ void setup() {
    taskManager.scheduleFixedRate(5, &sendMIDIData);
 
    // This is a low priority task, so we can schedule this every few hundreds of
-   // milliseconds. AFAIK the display I'm using updates about ever 200ms, so
-   // I'm going for that. This updates it 5 times per second approximately.
-   taskManager.scheduleFixedRate(200, &updateDisplay);
+   // milliseconds.
+   taskManager.scheduleFixedRate(50, &updateDisplay);
    
    // DEBUG This schedules the reporting of loops per second. No need to have it
    // if we don't need it.
@@ -146,8 +151,10 @@ void loop() {
       unsigned char direction = CCNumberEncoders[i].process();
       if (direction && direction == DIR_CCW && CCNumbers[i] > 1) {
          CCNumbers[i]--;
+         shouldUpdateDisplay = true;
       } else if (direction && direction == DIR_CW && CCNumbers[i] < 127) {
          CCNumbers[i]++;
+         shouldUpdateDisplay = true;
       }
    }
    // loops++; // DEBUG
