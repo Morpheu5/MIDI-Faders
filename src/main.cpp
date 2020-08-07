@@ -108,11 +108,9 @@ void setup() {
    // to work fine with most DAWs if you only want to change one track at a time
    // which is the goal of this project anyway.
    MIDI.begin(1);
-   // Possibly don't need to initialise the serial port if we won't use it, as
-   // it might take up precious resources via interrupts and stuff.
    // 31250 is the standard MIDI baud rate. Higher should work with USB but may
    // fail regular MIDI.
-   // Serial.begin(31250); // DEBUG
+   Serial.begin(31250);
 
    // Initialise and configures the LCD.
    lcd.init();
@@ -147,7 +145,8 @@ void loop() {
    // but that would require a change in the circuitry and so I'll add this to
    // the list of improvements for mk.2.
    for (int i = 0; i < 4; ++i) {
-      CCValues[i] = 128*analogRead(faderPins[i])/1024;
+      CCValues[i] = 128 * analogRead(faderPins[i]) / 1024;
+
       unsigned char direction = CCNumberEncoders[i].process();
       if (direction && direction == DIR_CCW && CCNumbers[i] > 1) {
          CCNumbers[i]--;
