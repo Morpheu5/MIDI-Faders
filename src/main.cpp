@@ -40,7 +40,7 @@ char charBuf[21];
 // These can be changed using the rotary encoders.
 unsigned char CCNumbers[] = { 1, 11, 3, 7 };
 // The rotary encoders to change the MIDI CC numbers.
-Rotary CCNumberEncoders[] = { Rotary(6, 5), Rotary(8, 7), Rotary(10, 9), Rotary(12, 11) };
+Rotary CCNumberEncoders[] = { Rotary(12, 11), Rotary(10, 9), Rotary(8, 7), Rotary(6, 5) };
 // Array that holds the values of each fader.
 unsigned char CCValues[] = { 0, 0, 0, 0 };
 // Array that holds the values of each fader at the previous step. Used to see
