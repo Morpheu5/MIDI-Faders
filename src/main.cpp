@@ -20,6 +20,8 @@
 #include <Rotary.h>
 #include <USB-MIDI.h>
 
+#include <math.h>
+
 LiquidCrystal_I2C lcd(0x27, 20, 4);
 
 USBMIDI_CREATE_DEFAULT_INSTANCE();
@@ -145,7 +147,11 @@ void loop() {
    // but that would require a change in the circuitry and so I'll add this to
    // the list of improvements for mk.2.
    for (int i = 0; i < 4; ++i) {
-      CCValues[i] = 128 * analogRead(faderPins[i]) / 1024;
+      if (i == 0 || i == 2) {
+         CCValues[i] = (unsigned char) 127.0 * (fmax(0.0, (float)analogRead(faderPins[i]) - 10)) / 1012.0;
+      } else {
+         CCValues[i] = 128 * analogRead(faderPins[i]) / 1024;
+      }
 
       unsigned char direction = CCNumberEncoders[i].process();
       if (direction && direction == DIR_CCW && CCNumbers[i] > 1) {
